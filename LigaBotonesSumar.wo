@@ -1,0 +1,399 @@
+// C:\DataFlex Projects\futbol\AppSrc\ZoomLiga.wo
+// Creación Liga
+//
+
+Use cWebView.pkg
+Use cWebPanel.pkg
+Use cWebMenuGroup.pkg
+Use cWebMenuItem.pkg
+Use cWebForm.pkg
+Use cWebList.pkg
+Use cWebColumn.pkg
+
+Use cligaDataDictionary.dd
+Use cequipoDataDictionary.dd
+Use centrenadorDataDictionary.dd
+Use cjugadorDataDictionary.dd
+
+Object oZoomLiga is a cWebView
+    Set piColumnCount to 12
+    Set psCaption to "Creación Liga"
+    Set peWebViewStyle to wvsDrilldown
+    Set peViewType to vtZoom
+    Set pbShowCaption to False
+    Set Verify_Save_Msg to 0
+    Set piMaxWidth to 1024
+
+    Object oliga_DD is a cligaDataDictionary
+        /*
+        Procedure OnPostFind Integer eMessage
+            Forward Send OnPostFind eMessage
+            
+            Integer iCount iLigaID
+    
+            Get Field_Current_Value Field liga.ID to iLigaID
+            
+            If (iLigaID <> 0) Begin
+                Move 0 to iCount
+                Clear equipo
+                Move iLigaID to equipo.LigaID
+                Find ge equipo by Index.2 // Index de LigaID
+                
+                //Bucle 
+                While (Found and equipo.LigaID = iLigaID)
+                    Increment iCount
+                    Find gt equipo by Index.2
+                Loop
+                
+                //Limpiamos el buffer para no dejarlo sucio
+                Clear equipo
+                
+                //Actualizamos buffer del DD
+                Set Field_Current_Value Field liga.Equipos to iCount
+            End
+        End_Procedure 
+        */
+    End_Object 
+
+    Object oequipo_DD is a cequipoDataDictionary
+        Set DDO_Server to oliga_DD
+        Set Constrain_File to liga.File_Number
+    End_Object
+
+     Object oentrenador_DD is a centrenadorDataDictionary   
+        Function EsEquipoDeLaLiga Integer iEqID Returns Boolean
+            Integer iLigaID
+            
+            //Obtenemos la Liga del DD (La fuente de la verdad en la Web)
+            Get Field_Current_Value of oLiga_DD Field liga.ID to iLigaID        
+            If (iLigaID = 0) Function_Return False
+            
+            /*Clear equipo
+            Move iEqID to equipo.ID
+            Find eq equipo.ID
+            */
+
+            Move iEqID to equipo.ID
+            Send Request_Read to oequipo_DD eq equipo.File_Number 1
+            
+            Function_Return (Found and equipo.LigaID = iLigaID)
+        End_Function
+
+        //El procedimiento OnConstrain usa la funcion
+        Procedure OnConstrain
+            Forward Send OnConstrain
+            Constrain entrenador as (EsEquipoDeLaLiga(Self, entrenador.EquipoID))
+        End_Procedure
+     End_Object //oentrenador_DD
+     
+     
+     Object ojugador_DD is a cjugadorDataDictionary
+        
+        Function EsEquipoDeLaLiga Integer iEqID Returns Boolean
+            Integer iLigaID
+            
+            Get Field_Current_Value of oLiga_DD Field liga.ID to iLigaID        
+            If (iLigaID = 0) Function_Return False
+            
+            Clear equipo
+            Move iEqID to equipo.ID
+            Find eq equipo.ID
+            Function_Return (Found and equipo.LigaID = iLigaID)
+        End_Function
+
+        Procedure OnConstrain
+            Forward Send OnConstrain
+            Constrain jugador as (EsEquipoDeLaLiga(Self, jugador.EquipoID))
+        End_Procedure
+     End_Object
+  
+
+    Set Main_DD to oliga_DD
+    Set Server  to oliga_DD
+
+
+    Object oWebMainPanel is a cWebPanel
+        Set piColumnCount to 12
+        WebSetResponsive piColumnCount rmMobile to 4
+        
+        Object oWebGroup1 is a cWebGroup
+            Set piColumnSpan to 12
+            Set piColumnIndex to 0
+            Set piColumnCount to 12
+            Set psCaption to "Liga"
+            WebSetResponsive piColumnCount rmMobile to 4       
+
+            Object oligaNombre is a cWebForm
+                Entry_Item liga.Nombre
+                Set piColumnSpan to 7
+                Set piColumnIndex to 0
+                Set peLabelPosition to lpTop
+                Set psLabel to "Nombre"
+            End_Object
+        End_Object
+        
+        Object oWebGroup2 is a cWebGroup
+            Set piColumnSpan to 12
+            Set piColumnIndex to 0
+            Set piColumnCount to 12
+            Set psCaption to "Detalles Liga"
+            WebSetResponsive piColumnCount rmMobile to 4     
+        
+            Object oligaPais is a cWebForm
+                Entry_Item liga.Pais
+                Set piColumnSpan to 4
+                Set piColumnIndex to 0
+                Set peLabelPosition to lpTop
+                Set psLabel to "Pais"
+            End_Object 
+            
+            Object oEquiposLiga is a cWebForm
+                Entry_Item liga.Equipos
+                Set piColumnSpan to 2
+                Set piColumnIndex to 5
+                Set peLabelPosition to lpTop
+                Set psLabel to "Equipos"             
+            End_Object
+            
+            Object oBtnMas is a cWebButton
+                Set psCaption to "+"
+                Set piColumnIndex to 7
+            
+                Procedure OnClick
+                    Integer iVal
+                    Integer iValMax
+                    
+                    //Se usa DEOToData (pantalla->dictionary) y DataToDEO (al revés)??
+                    
+                    WebGet psValue of oEquiposLiga to iVal
+                    WebGet psValue of oEquiposMaxLiga to iValMax
+                    //Get Field_Current_Value of oliga_DD Field liga.Equipos to iVal
+                    
+                    If (iVal < iValMax) Begin
+                    Set Field_Changed_Value of oliga_DD Field liga.Equipos to (iVal + 1)
+                    //Set File_Field_Changed_Value of oequipo_DD File_Field liga.Equipos to (iVal + 1)
+                    
+                    // Esto actualiza la interfaz visual y en DD con la barra libre
+                    WebSet psValue of oEquiposLiga to (iVal + 1)
+                    End
+                End_Procedure
+            End_Object   
+            
+            Object oEquiposMaxLiga is a cWebForm
+                Entry_Item liga.EquiposMax
+                Set piColumnSpan to 2
+                Set piColumnIndex to 9
+                Set peLabelPosition to lpTop
+                Set psLabel to "Equipos Máximos"             
+            End_Object
+        
+            Object oBtnMenos is a cWebButton
+                Set psCaption to "-"
+                Set piColumnIndex to 7
+            
+                Procedure OnClick
+                    Integer iVal
+                    WebGet psValue of oEquiposLiga to iVal                    
+                    If (iVal > 0) Begin
+                        WebSet psValue of oEquiposLiga to (iVal - 1)
+                    End
+                End_Procedure
+            End_Object
+         End_Object
+        
+         Object oWebGroup3 is a cWebGroup
+            Set piColumnSpan to 12
+            Set psCaption to "equipos"
+            Set piColumnCount to 12
+
+            Object oEquipoList is a cWebList
+                Set Server to oequipo_DD
+                Set piColumnSpan to 12
+                Set psCSSClass to "MobileList"
+                Set piOrdering to 1
+    
+                Object oequipoNombre is a cWebColumn
+                    Entry_Item equipo.Nombre
+                    Set psCaption to "Nombre"
+                End_Object 
+            End_Object   
+         End_Object
+         
+         Object oWebGroup4 is a cWebGroup
+            Set piColumnSpan to 12
+            Set psCaption to "Entrenadores"
+            Set piColumnCount to 12
+
+            Object oEntrenadorLista is a cWebList
+                Set Server to oEntrenador_DD
+                Set piColumnSpan to 12
+                Set psCSSClass to "MobileList"
+                
+                Object oEntrenadorNombre is a cWebColumn
+                    Entry_Item entrenador.Nombre
+                    Set pbSortable to True
+                End_Object
+            End_Object        
+         End_Object
+         
+         Object oWebGroup5 is a cWebGroup
+            Set piColumnSpan to 12
+            Set psCaption to "Jugadores"
+            Set piColumnCount to 12
+
+            Object oJugadorLista is a cWebList
+                Set Server to ojugador_DD
+                Set piColumnSpan to 12
+                Set psCSSClass to "MobileList"
+                
+                Object oJugadorNombre is a cWebColumn
+                    Entry_Item jugador.Nombre
+                    Set pbSortable to True
+                End_Object
+                
+                Object oEquipoNombre is a cWebColumn
+                    Entry_Item equipo.Nombre
+                End_Object
+            End_Object        
+        End_Object 
+    End_Object 
+
+    Object oActionGroup is a cWebMenuGroup
+
+        Object oSaveBtn is a cWebMenuItem
+            Set psCSSClass to "WebSaveMenuItem"
+            Set psCaption to "Save"
+
+            Procedure OnClick
+                Send Request_Save
+            End_Procedure
+
+        End_Object 
+
+        Object oEditBtn is a cWebMenuItem
+            Set psCSSClass to "WebEditMenuItem"
+            Set psCaption to "Edit"
+            Procedure OnClick
+                Send ChangeEditMode True
+                Send SetActionButtons
+            End_Procedure
+
+        End_Object
+        
+        Object oDeleteBtn is a cWebMenuItem
+            Set psCSSClass to "WebDeleteMenuItem"
+            Set psCaption to "Delete"
+            Set peActionDisplay to adMenu
+
+            Procedure OnClick
+                Send Request_Delete
+            End_Procedure
+
+        End_Object
+
+        Object oCancelChangesBtn is a cWebMenuItem
+            Set psCSSClass to "WebIcon_Refresh"
+            Set psCaption to "Clear Changes"
+            Set peActionDisplay to adMenu
+            Procedure OnClick
+                Send RefreshRecord
+            End_Procedure
+
+        End_Object 
+
+        Object oNewDetail is a cWebMenuItem
+            Set psCaption to "New Detail Item"
+            Set peActionDisplay to adMenu
+            Set pbBeginGroup to True
+
+// ToDo: Fill in the from-parent child Select view object name for navigate forward
+//            WebRegisterPath ntNavigateForward oSelectView
+
+            Procedure OnClick
+                Send NavigatePath
+            End_Procedure
+
+            Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
+                Move True to NavigateData.bNewRecord
+                Move True to NavigateData.bSaveBeforeNavigate
+            End_Procedure
+
+        End_Object 
+    End_Object 
+
+    Procedure SetActionButtons
+        tWebNavigateData NavigateData
+        Boolean bHasRecord
+        Handle hoDD
+
+        Get Server to hoDD
+        Get GetNavigateData to NavigateData
+        Get HasRecord of hoDD to bHasRecord
+
+        // let's hide all buttons and then Show the ones we want
+        WebSet pbRender of oEditBtn to False
+        WebSet pbRender of oSaveBtn to False
+        WebSet pbRender of oCancelChangesBtn to False
+        WebSet pbRender of oDeleteBtn to False
+        WebSet pbRender of oNewDetail to False
+        
+        //------
+        WebSet pbVisible of oBtnMas to False
+        WebSet pbVisible of oBtnMenos to False
+
+        If (NavigateData.bReadOnly) Begin
+            WebSet pbRender of oEditBtn to True
+        End
+        Else Begin
+            WebSet pbRender of oSaveBtn to True
+            WebSet pbRender of oCancelChangesBtn to True
+            WebSet pbRender of oDeleteBtn to bHasRecord
+            WebSet pbRender of oNewDetail to True
+            
+            //------
+            WebSet pbVisible of oBtnMas to True
+            WebSet pbVisible of oBtnMenos to True
+        End
+    End_Procedure
+
+    Procedure OnViewSaved Handle hoServer Boolean bChanged
+        // Close after save
+        //Send NavigateClose Self
+        Send ShowInfoBox "Cambios guardados con éxito"
+    End_Procedure
+
+    // this will close the view after a delete
+    Procedure OnViewDeleted Handle hoDDO
+        Send NavigateClose Self
+    End_Procedure
+
+    Procedure OnNavigateForward tWebNavigateData NavigateData Integer hoInvokingView Integer hoInvokingObject
+        Case Begin
+            Case (NavigateData.eNavigateType = nfFromMain)
+                // If from main, this is a propbably a main file Select to Zoom.
+                Case Break
+
+            Case (NavigateData.eNavigateType = nfFromParent)
+                // If from parent, this is a constrained drill down.
+                Case Break
+
+            Case (NavigateData.eNavigateType = nfFromChild)
+                // If from child, this is a probably a parent Zoom from a Zoom.
+                Case Break
+
+            Case Else // must be nfUndefined
+
+        Case End
+        
+        Send Rebuild_Constraints of oentrenador_DD
+    
+        // Forzamos a los jugadores a aplicar el nuevo filtro
+       Send RefreshListFromDD of oJugadorLista
+       Send RefreshListFromDD of oEntrenadorLista
+
+       Send SetActionButtons
+        
+
+    End_Procedure
+
+End_Object 
