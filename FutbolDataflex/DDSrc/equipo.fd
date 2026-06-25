@@ -1,0 +1,6 @@
+#REPLACE FILE2 equipo
+#REPLACE equipo.File_Number |CI2
+#REPLACE equipo.ID |FN2,1
+#REPLACE equipo.Nombre |FS2,2
+#REPLACE equipo.LigaID |FN2,3
+#REPLACE equipo.Logo |FS2,4

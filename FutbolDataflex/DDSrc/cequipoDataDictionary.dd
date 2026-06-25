@@ -1,0 +1,32 @@
+﻿Use DataDict.pkg
+
+Open equipo
+Open entrenador
+Open jugador
+Open liga
+
+Class cequipoDataDictionary is a DataDictionary
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set Main_File to equipo.File_Number
+
+        Set Add_Server_File to liga.File_Number
+
+        Set Add_Client_File to entrenador.File_Number
+        Set Add_Client_File to jugador.File_Number
+
+        Set Foreign_Field_Option DD_KEYFIELD DD_NOPUT to True
+        Set Foreign_Field_Option DD_KEYFIELD DD_FINDREQ to True
+        Set Foreign_Field_Option DD_INDEXFIELD DD_NOPUT to True
+        Set Foreign_Field_Option DD_DEFAULT DD_DISPLAYONLY to True
+        
+        // Configuración de campos
+
+        Set Field_Option Field equipo.ID DD_NOPUT to True
+        Set Field_Option Field equipo.ID DD_DISPLAYONLY to True
+        Set Field_Option Field equipo.Nombre DD_REQUIRED to True
+
+    End_Procedure
+
+End_Class

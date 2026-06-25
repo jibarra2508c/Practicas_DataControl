@@ -1,0 +1,308 @@
+﻿// C:\DataFlex Projects\futbol\AppSrc\ZoomEquipo.wo
+// Creación Equipo
+//
+
+Use cWebView.pkg
+Use cWebPanel.pkg
+Use cWebMenuGroup.pkg
+Use cWebMenuItem.pkg
+Use cWebForm.pkg
+Use cWebList.pkg
+Use cWebColumn.pkg
+
+Use cligaDataDictionary.dd
+Use cequipoDataDictionary.dd
+Use cjugadorDataDictionary.dd
+Use centrenadorDataDictionary.dd 
+
+Object oZoomEquipo is a cWebView
+    Set piColumnCount to 12
+    Set psCaption to "Creación Equipo"
+    Set peWebViewStyle to wvsDrilldown
+    Set peViewType to vtZoom
+    Set pbShowCaption to False
+    Set Verify_Save_Msg to 0
+    Set piMaxWidth to 1024
+
+    Object oliga_DD is a cligaDataDictionary
+    End_Object 
+
+    Object oequipo_DD is a cequipoDataDictionary
+        Set DDO_Server To oliga_DD
+    End_Object 
+
+    Object ojugador_DD is a cjugadorDataDictionary
+        Set DDO_Server To oequipo_DD
+        Set Constrain_File To equipo.File_Number
+    End_Object
+    
+    Object oentrenador_DD is a centrenadorDataDictionary
+        Set DDO_Server to oequipo_DD
+        Set Constrain_File to equipo.File_Number
+    End_Object
+
+    Set Main_DD To oequipo_DD
+    Set Server  To oequipo_DD
+
+
+    Object oWebMainPanel is a cWebPanel
+        Set piColumnCount to 12
+        WebSetResponsive piColumnCount rmMobile to 4
+
+        Object oWebGroup1 is a cWebGroup
+            Set piColumnSpan to 12
+            Set piColumnIndex to 0
+            Set piColumnCount to 12
+            Set psCaption to "Liga"
+            WebSetResponsive piColumnCount rmMobile to 4         
+        
+            Object oligaNombre is a cWebForm
+                Entry_Item liga.Nombre
+                Set piColumnSpan to 12
+                Set piColumnIndex to 0
+                Set peLabelPosition to lpTop
+                Set psLabel to "Liga"
+                Set pbPromptButton to True
+    
+               WebRegisterPath ntNavigateForward oSelectLiga
+    
+                Procedure OnPrompt
+                    Send NavigatePath
+                End_Procedure
+            End_Object
+        End_Object
+        
+        Object oWebGroup2 is a cWebGroup
+            Set piColumnSpan to 12
+            Set piColumnIndex to 0
+            Set piColumnCount to 12
+            Set psCaption to "Equipo"
+            WebSetResponsive piColumnCount rmMobile to 4     
+        
+            Object oequipoNombre is a cWebForm
+                Entry_Item equipo.Nombre            
+                Set piColumnSpan to 5
+                Set piColumnIndex to 0
+                Set peLabelPosition to lpTop
+                Set psLabel to "Nombre"
+            End_Object
+            
+            Object oEquiposLiga is a cWebForm
+                Entry_Item liga.Equipos
+                Set piColumnSpan to 3
+                Set piColumnIndex to 6
+                Set peLabelPosition to lpTop
+                Set psLabel to "Equipos"             
+            End_Object
+            
+            Object oEquiposMaxLiga is a cWebForm
+                Entry_Item liga.EquiposMax
+                Set piColumnSpan to 3
+                Set piColumnIndex to 9
+                Set peLabelPosition to lpTop
+                Set psLabel to "Equipos Máximos"             
+            End_Object
+        End_Object
+        
+        Object oWebGroup3 is a cWebGroup
+            Set piColumnSpan to 12
+            Set psCaption to "Jugadores"
+            Set piColumnCount to 12
+    
+            Object oDetailList is a cWebList
+                Set Server to ojugador_DD
+                Set piOrdering to 2                            
+                Set piColumnSpan to 12
+                Set psCSSClass to "MobileList"
+                Set pbServerOnRowClick to True
+                
+                Object ojugadorNombre is a cWebColumn
+                    Entry_Item jugador.Nombre
+                    Set psCaption to "Jugadores"
+                    Set piWidth to 5
+                    Set pbSortable to False
+                End_Object 
+
+                Object ojugadorApellido is a cWebColumn
+                    Entry_Item jugador.Apellido
+                    Set psCaption to "Jugadores"
+                    Set piWidth to 50
+                    Set pbSortable to False
+                End_Object                 
+                
+                WebRegisterPath ntNavigateForward oZoomJugador
+    
+                Procedure OnRowClick String sRowId
+                    Send NavigatePath
+                End_Procedure
+    
+                Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
+                    Move True to NavigateData.bReadOnly
+                    Move True to NavigateData.bSaveBeforeNavigate
+                End_Procedure
+    
+            End_Object
+        End_Object
+        
+        Object oWebGroup4 is a cWebGroup
+            Set piColumnSpan to 12
+            Set psCaption to "Entrenadores"
+            Set piColumnCount to 12
+    
+            Object oDetailList is a cWebList
+                Set Server to oEntrenador_DD
+                Set piOrdering to 2                            
+                Set piColumnSpan to 12
+                Set psCSSClass to "MobileList"
+                Set pbServerOnRowClick to True
+                
+             Object oEntrenadorNombre is a cWebColumn
+                    Entry_Item entrenador.Nombre
+                    Set piWidth to 5
+                    Set pbSortable to False
+                End_Object 
+    
+                Object oEntrenadorApellido is a cWebColumn
+                    Entry_Item entrenador.Apellido
+                    Set piWidth to 50
+                    Set pbSortable to False
+                End_Object 
+    
+              WebRegisterPath ntNavigateForward oZoomEntrenador
+    
+                Procedure OnRowClick String sRowId
+                    Send NavigatePath
+                End_Procedure
+    
+                Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
+                    Move True to NavigateData.bReadOnly
+                    Move True to NavigateData.bSaveBeforeNavigate
+                End_Procedure
+                
+            End_Object
+        End_Object    
+    End_Object 
+
+    Object oActionGroup is a cWebMenuGroup
+
+        Object oSaveBtn is a cWebMenuItem
+            Set psCSSClass to "WebSaveMenuItem"
+            Set psCaption to "Save"
+
+            Procedure OnClick
+                Send Request_Save
+            End_Procedure
+
+        End_Object 
+
+        Object oEditBtn is a cWebMenuItem
+            Set psCSSClass to "WebEditMenuItem"
+            Set psCaption to "Edit"
+            Procedure OnClick
+                Send ChangeEditMode True
+                Send SetActionButtons
+            End_Procedure
+
+        End_Object 
+
+        Object oDeleteBtn is a cWebMenuItem
+            Set psCSSClass to "WebDeleteMenuItem"
+            Set psCaption to "Delete"
+            Set peActionDisplay to adMenu
+
+            Procedure OnClick
+                Send Request_Delete
+            End_Procedure
+
+        End_Object 
+
+        Object oCancelChangesBtn is a cWebMenuItem
+            Set psCSSClass to "WebIcon_Refresh"
+            Set psCaption to "Clear Changes"
+            Set peActionDisplay to adMenu
+            Procedure OnClick
+                Send RefreshRecord
+            End_Procedure
+
+        End_Object 
+
+        Object oNewDetail is a cWebMenuItem
+            Set psCaption to "New Detail Item"
+            Set peActionDisplay to adMenu
+            Set pbBeginGroup to True
+
+// ToDo: Fill in the from-parent child Select view object name for navigate forward
+//            WebRegisterPath ntNavigateForward oSelectView
+
+            Procedure OnClick
+                Send NavigatePath
+            End_Procedure
+
+            Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
+                Move True to NavigateData.bNewRecord
+                Move True to NavigateData.bSaveBeforeNavigate
+            End_Procedure
+
+        End_Object 
+    End_Object 
+
+    Procedure SetActionButtons
+        tWebNavigateData NavigateData
+        Boolean bHasRecord
+        Handle hoDD
+
+        Get Server to hoDD
+        Get GetNavigateData to NavigateData
+        Get HasRecord of hoDD to bHasRecord
+
+        // let's hide all buttons and then Show the ones we want
+        WebSet pbRender of oEditBtn to False
+        WebSet pbRender of oSaveBtn to False
+        WebSet pbRender of oCancelChangesBtn to False
+        WebSet pbRender of oDeleteBtn to False
+        WebSet pbRender of oNewDetail to False
+
+        If (NavigateData.bReadOnly) Begin
+            WebSet pbRender of oEditBtn to True
+        End
+        Else Begin
+            WebSet pbRender of oSaveBtn to True
+            WebSet pbRender of oCancelChangesBtn to True
+            WebSet pbRender of oDeleteBtn to bHasRecord
+            WebSet pbRender of oNewDetail to True
+        End
+    End_Procedure
+
+    Procedure OnViewSaved Handle hoServer Boolean bChanged
+        // Close after save
+        Send NavigateClose Self
+    End_Procedure
+
+    // this will close the view after a delete
+    Procedure OnViewDeleted Handle hoDDO
+        Send NavigateClose Self
+    End_Procedure
+
+    Procedure OnNavigateForward tWebNavigateData NavigateData Integer hoInvokingView Integer hoInvokingObject
+        Case Begin
+            Case (NavigateData.eNavigateType = nfFromMain)
+                // If from main, this is a propbably a main file Select to Zoom.
+                Case Break
+
+            Case (NavigateData.eNavigateType = nfFromParent)
+                // If from parent, this is a constrained drill down.
+                Case Break
+
+            Case (NavigateData.eNavigateType = nfFromChild)
+                // If from child, this is a probably a parent Zoom from a Zoom.
+                Case Break
+
+            Case Else // must be nfUndefined
+
+        Case End
+
+        Send SetActionButtons
+
+    End_Procedure
+
+End_Object 

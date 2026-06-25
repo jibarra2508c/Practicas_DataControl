@@ -1,0 +1,85 @@
+[Workspace]
+CurrentProject=WebApp.src
+Location=C:\DataFlex Projects\futbol\IdeSrc\Javi_Studio.dsk
+CreateNew=-1
+[TabWindows]
+GroupCount=1
+HorizontalGroups=1
+[TabGroup0]
+GroupSize=40
+SelectedTab=6
+[Window0]
+Filename=Workspace Dashboard
+ViewType=101
+Top=21
+Left=0
+Bottom=863
+Right=1173
+TabIndex=0
+TabGroup=0
+[Window1]
+Filename=C:\DataFlex Projects\futbol\AppSrc\SelectJugadorPosicion.wo
+ViewType=1
+Top=21
+Left=0
+Bottom=863
+Right=1173
+CursorLine=107
+CursorColumn=10
+TabIndex=1
+TabGroup=0
+[Window2]
+Filename=C:\DataFlex Projects\futbol\AppSrc\ZoomJugador.wo
+ViewType=1
+Top=21
+Left=0
+Bottom=863
+Right=1173
+CursorLine=40
+CursorColumn=0
+TabIndex=2
+TabGroup=0
+[Window3]
+Filename=C:\DataFlex Projects\futbol\AppSrc\SelectJugador.wo
+ViewType=1
+Top=21
+Left=0
+Bottom=863
+Right=1173
+CursorLine=78
+CursorColumn=36
+TabIndex=3
+TabGroup=0
+[Window4]
+Filename=C:\DataFlex Projects\futbol\DDSrc\cjugadorposicionDataDictionary.dd
+ViewType=1
+Top=21
+Left=0
+Bottom=863
+Right=1173
+CursorLine=0
+CursorColumn=0
+TabIndex=4
+TabGroup=0
+[Window5]
+Filename=C:\DataFlex Projects\futbol\AppSrc\Dashboard.wo
+ViewType=1
+Top=21
+Left=0
+Bottom=863
+Right=1173
+CursorLine=55
+CursorColumn=33
+TabIndex=5
+TabGroup=0
+[Window6]
+Filename=C:\DataFlex Projects\futbol\AppSrc\ZoomEquipo.wo
+ViewType=1
+Top=21
+Left=0
+Bottom=863
+Right=1173
+CursorLine=0
+CursorColumn=0
+TabIndex=6
+TabGroup=0

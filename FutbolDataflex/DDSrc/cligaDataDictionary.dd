@@ -1,0 +1,42 @@
+﻿Use DataDict.pkg
+
+Open liga
+Open equipo
+
+Class cligaDataDictionary is a DataDictionary
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set Main_File to liga.File_Number
+
+        Set Add_Client_File to equipo.File_Number
+
+        Set Foreign_Field_Option DD_KEYFIELD DD_NOPUT to True
+        Set Foreign_Field_Option DD_KEYFIELD DD_FINDREQ to True
+        Set Foreign_Field_Option DD_INDEXFIELD DD_NOPUT to True
+        Set Foreign_Field_Option DD_DEFAULT DD_DISPLAYONLY to True
+        
+        // Configuración de campos
+        
+        Set Field_Option Field liga.ID DD_NOPUT to True
+        Set Field_Option Field liga.ID DD_DISPLAYONLY to True
+
+        Set Field_Option Field liga.Nombre DD_REQUIRED to True
+        Set Field_Option Field liga.Nombre DD_CAPSLOCK to True
+
+        Set Field_Option Field liga.Pais DD_REQUIRED to True
+
+        Set Field_Option Field liga.Equipos DD_REQUIRED to True
+
+        Set Field_Option Field liga.EquiposMax DD_REQUIRED to True
+        Set Field_Label_Long Field liga.EquiposMax to "Máximo de Equipos"
+        Set Field_Option Field liga.EquiposMax DD_NOPUT to True
+
+    End_Procedure
+    
+    Procedure Field_Defaults
+        Forward Send Field_Defaults
+        Set Field_Changed_Value Field liga.EquiposMax to 20
+    End_Procedure
+
+End_Class

@@ -1,0 +1,208 @@
+﻿// C:\DataFlex Projects\futbol\AppSrc\SelectJugadorPosicion.wo
+// JugadorPosicion
+//
+
+Use cWebView.pkg
+Use cWebList.pkg
+Use cWebMenuGroup.pkg
+Use cWebMenuItem.pkg
+Use cWebColumnButton.pkg
+Use cWebColumn.pkg
+
+Use cligaDataDictionary.dd
+Use cequipoDataDictionary.dd
+Use cjugadorDataDictionary.dd
+Use cposicionDataDictionary.dd
+Use cjugadorposicionDataDictionary.dd
+
+Object oSelectJugadorPosicion is a cWebView
+    Set psCaption to "JugadorPosicion"
+    Set peWebViewStyle to wvsDrilldown
+    Set peViewType to vtSelect
+    Set piColumnCount to 12
+    Set pbShowCaption to False
+    Set piMaxWidth to 1024
+
+    Object oliga_DD is a cligaDataDictionary
+    End_Object 
+
+    Object oequipo_DD is a cequipoDataDictionary
+        Set DDO_Server To oliga_DD
+    End_Object 
+
+    Object ojugador_DD is a cjugadorDataDictionary
+        Set DDO_Server to oequipo_DD
+    End_Object 
+
+    Object oposicion_DD is a cposicionDataDictionary
+    End_Object
+    
+    Object oposicionestotales_DD is a cposicionDataDictionary        
+    End_Object
+
+    Object ojugadorposicion_DD is a cjugadorposicionDataDictionary
+        Set DDO_Server To ojugador_DD
+        Set DDO_Server to oposicion_DD
+    End_Object 
+
+    Set Main_DD to ojugadorposicion_DD
+    Set Server  to ojugadorposicion_DD
+    
+    //Lista posiciones disponibles
+
+    Object oListDisponibles is a cWebList
+        Set psCaption to "Posiciones disponibles"
+        Set Server to oposicionestotales_DD
+        Set piColumnSpan to 5
+        Set pbServerOnRowClick to True
+        Set pbShowHeader to False
+        Set pbFillHeight to True
+
+        Object oColDispNombre is a cWebColumn
+            Entry_Item posicion.Nombre
+            Set piWidth to 300
+        End_Object
+    End_Object
+    
+    //Botones
+    
+    Object oButtons is a cWebGroup
+        Set piColumnSpan to 2
+        Set psCSSClass to "CenterButtons"
+        Set piColumnIndex to 5
+
+        Object oBtnAdd is a cWebButton
+            Set psCaption to ">"
+            Set psCSSClass to "WebButton"
+      
+           Procedure OnClick           
+            String sRowId
+            RowID  riSelected
+            Integer iPosID
+           
+            // Obtener la fila seleccionada de la lista de disponibles
+            WebGet psCurrentRowId of oListDisponibles to sRowId
+            Move (DeserializeRowId(sRowId)) to riSelected
+            
+            If (IsNullRowID(riSelected)) Procedure_Return
+            
+            Get Field_Current_Value of oposicionestotales_DD Field posicion.ID to iPosID
+
+            // Posicionar el DD de posiciones disponibles en la fila seleccionada                     
+            Send FindByRowId of oposicionestotales_DD riSelected
+            If (not(Found)) Procedure_Return
+          
+            // crear registro jugadorposicion
+            Send Clear of ojugadorposicion_DD
+            Move iPosID to jugadorposicion.PosicionID
+            Move jugador.ID to jugadorposicion.JugadorID
+            
+            Send Request_Save of ojugadorposicion_DD
+
+            // Refrescar listas
+            Send RefreshListFromDD of oListAsignadas
+            Send RefreshListFromDD of oListDisponibles
+          End_Procedure
+          
+        End_Object
+                
+        Object oBtnRemove is a cWebButton
+            Set psCaption to "<"
+            Set psCSSClass to "WebButton"
+
+            Procedure OnClick
+                If (not(HasRecord(ojugadorposicion_DD))) Procedure_Return
+
+                Send Request_Delete of ojugadorposicion_DD
+
+                Send RefreshListFromDD of oListAsignadas
+                Send RefreshListFromDD of oListDisponibles
+            End_Procedure
+        End_Object
+    End_Object
+    
+    //Posiciones asignadas
+    
+     Object oListAsignadas is a cWebList
+        Set psCaption to "Posiciones del jugador"
+        Set piColumnSpan to 5
+        Set pbServerOnRowClick to True
+        Set pbShowHeader to False
+        Set pbFillHeight to True
+         Set piColumnIndex to 7
+
+        Object oColAsigNombre is a cWebColumn
+            Entry_Item posicion.Nombre
+            Set piWidth to 300
+        End_Object
+     End_Object
+     
+     /*
+     
+     //Refrescar Listas
+     
+      Procedure RefreshLists
+        Send Rebuild of oListDisponibles
+        Send Rebuild of oListAsignadas
+    End_Procedure
+    
+  */
+
+    Object oActionGroup is a cWebMenuGroup
+
+        Object oSearch is a cWebMenuItem
+            Set psCSSClass to "WebPromptMenuItem"
+            Set psCaption to "Search"
+
+            Procedure OnClick
+                Send Search of oList
+            End_Procedure
+
+        End_Object 
+
+        Object oNewButton is a cWebMenuItem
+            Set psCSSClass to "WebClearMenuItem"
+            Set psCaption to "New"
+
+// ToDo: Fill in the from-main Zoom view object name for navigate forward
+//            WebRegisterPath ntNavigateForward oZoomView
+
+            Procedure OnClick
+                Send NavigatePath
+            End_Procedure
+
+            Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
+                Move True to NavigateData.bNewRecord
+            End_Procedure
+
+        End_Object 
+    End_Object 
+
+    Procedure OnNavigateForward tWebNavigateData NavigateData Integer hoInvokingView Integer hoInvokingObject
+        
+
+        Case Begin
+            Case (NavigateData.eNavigateType = nfFromParent)
+                // If from parent, this is a constrained drill down
+                Case Break
+
+            Case (NavigateData.eNavigateType = nfFromChild)
+                // If from child, this is a probably a parent lookup from a Zoom
+                Case Break
+
+            Case (NavigateData.eNavigateType = nfFromMain)
+                // If from main, this is a probably a main-file lookup from a Zoom
+               
+                Case Break
+
+            Case Else // must be nfUndefined
+                // This may be the start of a drilldown query or this may be used for some kind of custom query.
+
+        Case End
+              
+              Send RefreshListFromDD of oListDisponibles
+
+    End_Procedure
+
+
+End_Object 

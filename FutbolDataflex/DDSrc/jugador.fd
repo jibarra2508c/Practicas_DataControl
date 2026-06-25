@@ -1,0 +1,7 @@
+#REPLACE FILE3 jugador
+#REPLACE jugador.File_Number |CI3
+#REPLACE jugador.ID |FN3,1
+#REPLACE jugador.Nombre |FS3,2
+#REPLACE jugador.Apellido |FS3,3
+#REPLACE jugador.Nacionalidad |FS3,4
+#REPLACE jugador.EquipoID |FN3,5

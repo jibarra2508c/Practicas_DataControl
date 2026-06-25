@@ -1,0 +1,268 @@
+﻿// C:\DataFlex Projects\futbol\AppSrc\ZoomJugador.wo
+// Creación Jugador
+//
+
+Use cWebView.pkg
+Use cWebPanel.pkg
+Use cWebMenuGroup.pkg
+Use cWebMenuItem.pkg
+Use cWebGroup.pkg
+Use cWebForm.pkg
+Use cWebList.pkg
+Use cWebColumn.pkg
+Use ZoomPosicion.wo
+Use SelectJugadorPosicion.wo
+
+Use cligaDataDictionary.dd
+Use cequipoDataDictionary.dd
+Use cjugadorDataDictionary.dd
+Use cposicionDataDictionary.dd
+Use cjugadorposicionDataDictionary.dd
+
+Object oZoomJugador is a cWebView
+    Set piColumnCount to 12
+    Set psCaption to "Creación Jugador"
+    Set peWebViewStyle to wvsDrilldown
+    Set peViewType to vtZoom
+    Set pbShowCaption to False
+    Set Verify_Save_Msg to 0
+    Set piMaxWidth to 1024
+
+    Object oliga_DD is a cligaDataDictionary
+    End_Object 
+
+    Object oequipo_DD is a cequipoDataDictionary
+        Set DDO_Server To oliga_DD
+    End_Object 
+
+    Object ojugador_DD is a cjugadorDataDictionary
+        Set DDO_Server To oequipo_DD
+    End_Object 
+
+    Object oposicion_DD is a cposicionDataDictionary
+    End_Object 
+
+    Object ojugadorposicion_DD is a cjugadorposicionDataDictionary
+        Set DDO_Server To ojugador_DD
+        Set DDO_Server To oposicion_DD
+        Set Constrain_File To jugador.File_Number
+    End_Object 
+
+    Set Main_DD To ojugador_DD
+    Set Server  To ojugador_DD
+
+
+    Object oWebMainPanel is a cWebPanel
+        Set piColumnCount to 12
+        WebSetResponsive piColumnCount rmMobile to 4
+
+        Object oWebGroup1 is a cWebGroup
+            Set piColumnSpan to 0
+            Set piColumnIndex to 0
+            Set piColumnCount to 12
+            Set psCaption to "Jugador"
+            WebSetResponsive piColumnCount rmMobile to 4
+
+            Object ojugadorNombre is a cWebForm
+                Entry_Item jugador.Nombre
+                Set piColumnSpan to 10
+                Set piColumnIndex to 0
+                Set peLabelPosition to lpTop
+                Set psLabel to "Nombre"
+            End_Object 
+
+            Object ojugadorApellido is a cWebForm
+                Entry_Item jugador.Apellido
+                Set piColumnSpan to 10
+                Set piColumnIndex to 0
+                Set peLabelPosition to lpTop
+                Set psLabel to "Apellido"
+            End_Object 
+
+            Object ojugadorNacionalidad is a cWebForm
+                Entry_Item jugador.Nacionalidad
+                Set piColumnSpan to 8
+                Set piColumnIndex to 0
+                Set peLabelPosition to lpTop
+                Set psLabel to "Nacionalidad"
+            End_Object 
+        End_Object 
+
+        Object oWebGroup2 is a cWebGroup
+            Set piColumnSpan to 0
+            Set piColumnIndex to 0
+            Set piColumnCount to 12
+            Set psCaption to "Equipo"
+            WebSetResponsive piColumnCount rmMobile to 4
+
+            Object oequipoNombre is a cWebForm
+                Entry_Item equipo.Nombre
+                Set piColumnSpan to 12
+                Set piColumnIndex to 0
+                Set peLabelPosition to lpTop
+                Set psLabel to "Nombre"
+                Set pbPromptButton to True
+
+                WebRegisterPath ntNavigateForward oSelectEquipo
+
+                Procedure OnPrompt
+                    Send NavigatePath
+                End_Procedure
+            End_Object 
+        End_Object
+        
+        Object oBtnJugadorPosicion is a cWebButton
+        Set psCaption to "Editar posiciones"
+        Set piColumnSpan to 2
+        Set piColumnIndex to 10 
+        Set psCSSClass to "WebButton"
+
+        WebRegisterPath ntNavigateForward oSelectJugadorPosicion Self
+
+        Procedure OnClick
+            Send NavigatePath
+        End_Procedure   
+    End_Object
+
+        Object oDetailPosiciones is a cWebList
+            Set Server to ojugadorposicion_DD
+            Set piOrdering to 2
+            Set pbFillHeight to True
+            Set piColumnSpan to 12
+            Set psCSSClass to "MobileList"
+            Set pbServerOnRowClick to True
+            Set piMinHeight to 200
+
+            Object oposicionNombre is a cWebColumn
+                Entry_Item posicion.Nombre
+                Set psCaption to "Posiciones"
+                Set piWidth to 667
+                Set pbSortable to False
+            End_Object         
+        End_Object 
+    End_Object 
+
+    Object oActionGroup is a cWebMenuGroup
+
+        Object oSaveBtn is a cWebMenuItem
+            Set psCSSClass to "WebSaveMenuItem"
+            Set psCaption to "Save"
+
+            Procedure OnClick
+                Send Request_Save
+            End_Procedure
+
+        End_Object 
+
+        Object oEditBtn is a cWebMenuItem
+            Set psCSSClass to "WebEditMenuItem"
+            Set psCaption to "Edit"
+            Procedure OnClick
+                Send ChangeEditMode True
+                Send SetActionButtons
+            End_Procedure
+
+        End_Object 
+
+        Object oDeleteBtn is a cWebMenuItem
+            Set psCSSClass to "WebDeleteMenuItem"
+            Set psCaption to "Delete"
+            Set peActionDisplay to adMenu
+
+            Procedure OnClick
+                Send Request_Delete
+            End_Procedure
+
+        End_Object 
+
+        Object oCancelChangesBtn is a cWebMenuItem
+            Set psCSSClass to "WebIcon_Refresh"
+            Set psCaption to "Clear Changes"
+            Set peActionDisplay to adMenu
+            Procedure OnClick
+                Send RefreshRecord
+            End_Procedure
+
+        End_Object 
+
+        Object oNewDetail is a cWebMenuItem
+            Set psCaption to "New Detail Item"
+            Set peActionDisplay to adMenu
+            Set pbBeginGroup to True
+
+            WebRegisterPath ntNavigateForward oZoomPosicion
+
+            Procedure OnClick
+                Send NavigatePath
+            End_Procedure
+
+            Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
+                Move True to NavigateData.bNewRecord
+                Move True to NavigateData.bSaveBeforeNavigate
+            End_Procedure
+
+        End_Object 
+    End_Object 
+
+    Procedure SetActionButtons
+        tWebNavigateData NavigateData
+        Boolean bHasRecord
+        Handle hoDD
+
+        Get Server to hoDD
+        Get GetNavigateData to NavigateData
+        Get HasRecord of hoDD to bHasRecord
+
+        // let's hide all buttons and then Show the ones we want
+        WebSet pbRender of oEditBtn to False
+        WebSet pbRender of oSaveBtn to False
+        WebSet pbRender of oCancelChangesBtn to False
+        WebSet pbRender of oDeleteBtn to False
+        WebSet pbRender of oNewDetail to False
+        WebSet pbVisible of oBtnJugadorPosicion to False
+
+        If (NavigateData.bReadOnly) Begin
+            WebSet pbRender of oEditBtn to True
+        End
+        Else Begin
+            WebSet pbRender of oSaveBtn to True
+            WebSet pbRender of oCancelChangesBtn to True
+            WebSet pbRender of oDeleteBtn to bHasRecord
+            WebSet pbRender of oNewDetail to True
+            WebSet pbVisible of oBtnJugadorPosicion to True
+        End
+    End_Procedure
+
+    Procedure OnViewSaved Handle hoServer Boolean bChanged
+        // Close after save
+        Send NavigateClose Self
+    End_Procedure
+
+    // this will close the view after a delete
+    Procedure OnViewDeleted Handle hoDDO
+        Send NavigateClose Self
+    End_Procedure
+
+    Procedure OnNavigateForward tWebNavigateData NavigateData Integer hoInvokingView Integer hoInvokingObject
+        Case Begin
+            Case (NavigateData.eNavigateType = nfFromMain)
+                // If from main, this is a propbably a main file Select to Zoom.
+                Case Break
+
+            Case (NavigateData.eNavigateType = nfFromParent)
+                // If from parent, this is a constrained drill down.
+                Case Break
+
+            Case (NavigateData.eNavigateType = nfFromChild)
+                // If from child, this is a probably a parent Zoom from a Zoom.
+                Case Break
+
+            Case Else // must be nfUndefined
+
+        Case End
+
+        Send SetActionButtons
+
+    End_Procedure
+
+End_Object 
