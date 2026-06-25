@@ -2,7 +2,7 @@
 
 Repositorio que recoge el trabajo realizado durante mis **prácticas en empresa**, centradas en el entorno de desarrollo **DataFlex** y en la gestión de bases de datos **MySQL**. Reúne dos proyectos complementarios:
 
-## 📂 Contenido
+## Contenido
 
 ### [`DataControl/`](DataControl/)
 Documentación y material aprendido durante las prácticas:
@@ -13,10 +13,7 @@ Documentación y material aprendido durante las prácticas:
 ### [`FutbolDataflex/`](FutbolDataflex/)
 Aplicación web de gestión de fútbol desarrollada con **DataFlex** (HTML/CSS/JavaScript + fuentes DataFlex). Permite gestionar equipos e información de partidos, incluyendo la subida y visualización de logos de los equipos (`Uploads/EquiposLogos`).
 
-## 🛠️ Tecnologías
+## Tecnologías
 - **DataFlex** (entorno de desarrollo y web objects)
 - **MySQL** (gestión de usuarios, permisos y bases de datos)
 - **HTML / CSS / JavaScript**
-
-## ℹ️ Nota
-El historial de commits conserva la procedencia original de ambos proyectos, que inicialmente estaban en repositorios separados (`Practicas_DataControl` y `FutbolDataflex`) y se unificaron aquí.
