@@ -17,3 +17,6 @@ Aplicación web de gestión de fútbol desarrollada con **DataFlex** (HTML/CSS/J
 - **DataFlex** (entorno de desarrollo y web objects)
 - **MySQL** (gestión de usuarios, permisos y bases de datos)
 - **HTML / CSS / JavaScript**
+
+---
+Autor: **Javier Ibarra**
